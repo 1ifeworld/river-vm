@@ -1,5 +1,6 @@
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Client } from 'pg'
+import * as dbSchema from './schema.js'
 
 const client = new Client({
   connectionString: process.env.DATABASE_URL!,
@@ -7,4 +8,4 @@ const client = new Client({
 
 await client.connect()
 
-export const db = drizzle(client)
+export const db = drizzle(client, { schema: dbSchema })
