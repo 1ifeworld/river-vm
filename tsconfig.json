@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "hono/jsx",
+
+    // Language features
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ESNext",
+    "lib": ["ESNext"],
+    "types": ["@types/bun"]
+  }
+}
