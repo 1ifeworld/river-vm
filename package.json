@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "bun run src/index.ts && bun run src/server.ts",
+    "start": "bun run src/index.ts",
     "dev": "bun run --hot src/index.ts",
     "lint": "biome check . --apply",
     "format": "biome format . --write"
