@@ -2,7 +2,7 @@
   "scripts": {
     "start": "bun run src/index.ts",
     "dev": "bun run --hot src/index.ts",
-    "lint": "biome check . --apply",
+    "lint": "biome check . --write",
     "format": "biome format . --write"
   },
   "dependencies": {
