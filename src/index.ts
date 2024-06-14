@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { createUser } from './queries.js'
-import { type InsertUser } from './schema.js'
+import type { InsertUser } from './schema.js'
 
 const app = new Hono()
 
@@ -15,3 +15,5 @@ app.post('/create-user', async (c) => {
 })
 
 export default app
+
+console.log('Server ready')
