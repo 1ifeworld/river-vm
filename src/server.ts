@@ -6,11 +6,12 @@ import { db } from './db.js'
 const { schema } = buildSchema(db)
 
 const server = new ApolloServer({ schema })
+
 const { url } = await startStandaloneServer(server, {
   listen: {
-    port: 4000,
-    host: process.env.HOST || '0.0.0.0' // Use HOST from environment or default to '0.0.0.0'
+    // @ts-ignore
+    port: process.env.PORT, // Use Railway provided PORT
+    host: '0.0.0.0', // Listen on all network interfaces
   },
 })
-
 console.log(`Server ready at ${url}`)
