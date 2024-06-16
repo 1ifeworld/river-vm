@@ -11,7 +11,6 @@ const { url } = await startStandaloneServer(server, {
   listen: {
     // @ts-ignore
     port: process.env.PORT, // Use Railway provided PORT
-    host: '0.0.0.0', // Listen on all network interfaces
   },
 })
 console.log(`Server ready at ${url}`)
