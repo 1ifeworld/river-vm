@@ -1,17 +1,18 @@
-import { ApolloServer } from '@apollo/server'
-import { startStandaloneServer } from '@apollo/server/standalone'
 import { buildSchema } from 'drizzle-graphql'
+import { createYoga } from 'graphql-yoga'
 import { db } from './db.js'
 
 const { schema } = buildSchema(db)
 
-const server = new ApolloServer({ schema })
+const yoga = createYoga({ schema })
 
-const { url } = await startStandaloneServer(server, {
-  listen: {
-    // @ts-ignore
-    port: process.env.PORT, // Use Railway provided PORT
-    introspection: true,
-  },
+const server = Bun.serve({
+  fetch: yoga,
 })
-console.log(`Server ready at ${url}`)
+
+console.info(
+  `Server is running on ${new URL(
+    yoga.graphqlEndpoint,
+    `http://${server.hostname}:${server.port}`,
+  )}`,
+)
