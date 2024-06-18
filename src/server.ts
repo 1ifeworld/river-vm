@@ -4,7 +4,13 @@ import { db } from './db.js'
 
 const { schema } = buildSchema(db)
 
-const yoga = createYoga({ schema, cors: false })
+const yoga = createYoga({
+  schema,
+  cors: {
+    origin: '*', // Allow all origins
+    credentials: true, // If your client needs to send credentials
+  }
+})
 
 const server = Bun.serve({
   fetch: yoga,
