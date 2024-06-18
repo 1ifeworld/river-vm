@@ -4,7 +4,7 @@ import { db } from './db.js'
 
 const { schema } = buildSchema(db)
 
-const yoga = createYoga({ schema })
+const yoga = createYoga({ schema, cors: false })
 
 const server = Bun.serve({
   fetch: yoga,
