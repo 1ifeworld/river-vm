@@ -254,7 +254,6 @@ export class River {
                   id: submissionId,
                   content: JSON.stringify(message.messageData.body),
                   userId: message.messageData.rid.toString(),
-                  // Add other necessary fields
               })
               
               return submissionId

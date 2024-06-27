@@ -43,6 +43,19 @@ export type Message = {
   sig: Uint8Array
 }
 
+export function isMessage(data: any): data is Message {
+  return (
+    typeof data.signer === 'string' &&
+    typeof data.messageData === 'object' &&
+    typeof data.hashType === 'string' &&
+    (data.hashType === 'sha256' || data.hashType === 'sha512') &&
+    data.hash instanceof Uint8Array &&
+    typeof data.sigType === 'string' &&
+    (data.sigType === 'ed25519' || data.sigType === 'secp256k1') &&
+    data.sig instanceof Uint8Array
+  )
+}
+
 export type MessageData = {
   rid: bigint
   timestamp: bigint

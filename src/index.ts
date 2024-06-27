@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import type { Message } from '../src/rvm/types.js' 
 import { River } from './rvm/index.js'
+import { isMessage } from '../src/rvm/types.js'
 
 const app = new Hono()
 
@@ -11,7 +12,7 @@ app.post('/message', async (c) => {
     // Receive data
     const data = await c.req.json()
 
-    if (!data.message || typeof data.message !== 'object') {
+    if (!isMessage(data.message)) {
       return c.json({ error: 'Invalid message format' }, 400)
     }
 
