@@ -47,10 +47,9 @@ export class RiverVmClient {
   }
 
   public async processMessage(message: Message): Promise<string | null> {
-    // return null if invalid or NONE message type
+    // return null if invalid or message type
     if (!Object.values(MessageTypes).includes(message.messageData.type))
       return null;
-    if (message.messageData.type == MessageTypes.NONE) return null;
     // route message to executor function
     let vmResponse = null;
     switch (message.messageData.type) {
