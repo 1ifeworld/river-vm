@@ -63,7 +63,12 @@ export enum MessageTypes {
   export type ChannelCreateBody = {
     uri: string;
   };
-  
+
+  // type guard function
+  export function isChannelCreateBody(obj: any): obj is ChannelCreateBody {
+    return obj && typeof obj === 'object' && typeof obj.uri === 'string';
+  }  
+    
   /*
    * 2
    */
@@ -98,6 +103,11 @@ export enum MessageTypes {
     uri: string;
   };
   
+  // type guard function
+  export function isItemCreateBody(obj: any): obj is ChannelCreateBody {
+    return obj && typeof obj === 'object' && typeof obj.uri === 'string';
+  }  
+
   /*
    * 6
    */
