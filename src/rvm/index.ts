@@ -187,6 +187,7 @@ export class River {
           timestamp: Number(message.messageData.timestamp),
           createdById: message.messageData.rid.toString(),
           uri: message.messageData.body.uri,
+          // destructure cid to extract name and description? 
           name: '', 
           description: '', 
       })       
