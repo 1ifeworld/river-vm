@@ -12,9 +12,9 @@ app.post('/message', async (c) => {
     // Receive data
     const data = await c.req.json()
 
-    if (!isMessage(data.message)) {
-      return c.json({ error: 'Invalid message format' }, 400)
-    }
+    // if (!isMessage(data.message)) {
+    //   return c.json({ error: 'Invalid message format' }, 400)
+    // }
 
     const message: Message = data.message
 
