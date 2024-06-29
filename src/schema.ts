@@ -1,4 +1,11 @@
-import { integer, pgTable, serial, text, timestamp, numeric } from 'drizzle-orm/pg-core'
+import {
+  integer,
+  pgTable,
+  serial,
+  text,
+  timestamp,
+  numeric,
+} from 'drizzle-orm/pg-core'
 
 export const usersTable = pgTable('users', {
   id: numeric('userid').primaryKey(),
@@ -50,8 +57,7 @@ export const messageTable = pgTable('messages', {
   messageType: text('messagetype').notNull(),
   messageBody: text('messagebody').notNull(),
   hashType: text('hashtype').notNull(),
-  hash: numeric('hash')
-    .notNull(),
+  hash: numeric('hash').notNull(),
   sigType: text('sigtype').notNull(),
   sig: text('sig').notNull(),
 })

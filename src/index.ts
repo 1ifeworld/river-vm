@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import type { Message } from '../src/rvm/types.js' 
+import type { Message } from '../src/rvm/types.js'
 import { River } from './rvm/index.js'
 import { isMessage } from '../src/rvm/types.js'
 
@@ -19,7 +19,7 @@ app.post('/message', async (c) => {
     const message: Message = data.message
 
     const verified = await river.verifyMessage(message)
-    
+
     if (!verified) {
       return c.json({ error: 'Message not verified' }, 401)
     }

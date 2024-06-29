@@ -43,7 +43,7 @@ export type Message = {
   sig: Uint8Array
 }
 
-export function isMessage(data: any): data is Message {
+export function isMessage(data: Message): data is Message {
   return (
     typeof data.signer === 'string' &&
     typeof data.messageData === 'object' &&
@@ -76,10 +76,14 @@ export type ChannelCreateBody = {
   uri: string
 }
 
-
 // type guard function
-export function isChannelCreateBody(obj: any): obj is ChannelCreateBody {
-  return obj && typeof obj === 'object' && typeof obj.uri === 'string'
+export function isChannelCreateBody(obj: unknown): obj is ChannelCreateBody {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'uri' in obj &&
+    typeof (obj as { uri: unknown }).uri === 'string'
+  )
 }
 
 /*
@@ -117,10 +121,14 @@ export type ItemCreateBody = {
 }
 
 // type guard function
-export function isItemCreateBody(obj: any): obj is ChannelCreateBody {
-  return obj && typeof obj === 'object' && typeof obj.uri === 'string'
+export function isItemCreateBody(obj: unknown): obj is ItemCreateBody {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'uri' in obj &&
+    typeof (obj as { uri: unknown }).uri === 'string'
+  )
 }
-
 
 /*
  * 6
@@ -146,34 +154,41 @@ export type ItemSubmitBody = {
   caption?: string // MAX 300 CHAR LIMIT
 }
 
-export function isItemSubmitBody(obj: any): obj is ItemSubmitBody {
+export function isItemSubmitBody(obj: unknown): obj is ItemSubmitBody {
+  if (typeof obj !== 'object' || obj === null) {
+    return false
+  }
+
+  const messageBody = obj as Partial<ItemSubmitBody>
+
   return (
-    obj !== null &&
-    typeof obj === 'object' &&
-    typeof obj.itemId === 'string' &&
-    typeof obj.channelId === 'string' &&
-    (obj.caption === undefined || 
-      (typeof obj.caption === 'string' && obj.caption.length <= 300))
+    typeof messageBody.itemId === 'string' &&
+    typeof messageBody.channelId === 'string' &&
+    (messageBody.caption === undefined ||
+      (typeof messageBody.caption === 'string' &&
+        messageBody.caption.length <= 300))
   )
 }
-
-
 
 /*
  * 9
  */
 
-export function isItemAccRejBody(obj: any): obj is ItemAccRejBody {
+export function isItemAccRejBody(obj: unknown): obj is ItemAccRejBody {
+  if (typeof obj !== 'object' || obj === null) {
+    return false
+  }
+
+  const messageBody = obj as Partial<ItemAccRejBody>
+
   return (
-    obj &&
-    typeof obj === 'object' &&
-    typeof obj.submissionId === 'string' &&
-    typeof obj.response === 'boolean' &&
-    (obj.caption === undefined || 
-      (typeof obj.caption === 'string' && obj.caption.length <= 300))
+    typeof messageBody.submissionId === 'string' &&
+    typeof messageBody.response === 'boolean' &&
+    (messageBody.caption === undefined ||
+      (typeof messageBody.caption === 'string' &&
+        messageBody.caption.length <= 300))
   )
 }
-
 export type ItemAccRejBody = {
   submissionId: string
   response: boolean // FALSE = rejected, TRUE = accepted
@@ -247,4 +262,4 @@ export type MessageDataBodyTypes =
   | UserSetNameBody
   | UserSetUriBody
 
-  export const CAPTION_MAX_LENGTH = 300
+export const CAPTION_MAX_LENGTH = 300
