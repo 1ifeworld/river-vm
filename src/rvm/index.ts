@@ -82,10 +82,10 @@ export class River {
     const result = await this.authDb.query.keyTable.findFirst({
       where: (keys, { eq }) => eq(keys.userid, userId),
       columns: {
-        encryptedpublickey: true,
+        publickey: true,
       },
     })
-    return result?.encryptedpublickey || null
+    return result?.publickey || null
   }
 
   // main db
@@ -124,7 +124,7 @@ export class River {
         where: (keys, { and, eq }) =>
           and(
             eq(keys.userid, message.messageData.rid.toString()),
-            eq(keys.encryptedpublickey, message.signer),
+            eq(keys.publickey, message.signer),
           ),
       })
 

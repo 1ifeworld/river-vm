@@ -40,7 +40,7 @@ export const keyTable = pgTable(
       .references(() => usersTable.id),
     custodyAddress: text('custodyAddress').notNull(),
     deviceid: text('deviceid').notNull(),
-    encryptedpublickey: text('encryptedpublickey').notNull(),
+    publickey: text('publickey').notNull(),
     encryptedprivatekey: text('encryptedprivatekey').notNull(),
   },
   (table) => ({
