@@ -5,7 +5,7 @@ import * as dbSchema from '../schema.js'
 import { ed25519ph } from '@noble/curves/ed25519'
 import type {
   Message,
-  ItemAccRejBody,
+  GenericResponseBody,
   ItemSubmitBody,
   ItemCreateBody,
   MessageData,
@@ -14,7 +14,7 @@ import {
   isChannelCreateBody,
   isItemCreateBody,
   isItemSubmitBody,
-  isItemAccRejBody,
+  isGenericResponse,
   MessageTypes,
   CAPTION_MAX_LENGTH,
 } from './types.js'
@@ -177,7 +177,7 @@ export class River {
       [MessageTypes.CHANNEL_CREATE]: this._msg1_channelCreate,
       [MessageTypes.ITEM_CREATE]: this._msg5_itemCreate,
       [MessageTypes.ITEM_SUBMIT]: this._msg8_itemSubmit,
-      [MessageTypes.ITEM_ACC_REJ]: this._msg9_itemAccRej,
+      [MessageTypes.GENERIC_RESPONSE]: this._msg17_genericResponse,
     }
 
     const handler = handlers[message.messageData.type]
@@ -294,34 +294,40 @@ export class River {
             }
         */
 
-  private async _msg9_itemAccRej(message: Message): Promise<string | null> {
-    if (!isItemAccRejBody(message.messageData.body)) return null
-    const { submissionId, response, caption } = message.messageData
-      .body as ItemAccRejBody
+  private async _msg17_genericResponse(message: Message): Promise<string | null> {
+    if (!isGenericResponse(message.messageData.body)) return null
+    const { messageId, response } = message.messageData
+      .body as GenericResponseBody
 
-    const submissionExists = await this.db.query.submissionsTable.findFirst({
-      where: (submissions, { eq }) => eq(submissions.id, submissionId),
+    // NOTE: maybe should update messageId format to prepend with messageId
+    // so that we dont need to keep a global message table and can just
+    // look up specific message from its corresponding table
+    // OR perhaps simpler is just some union Message table that joins
+    // all of the individual message tables for the purpose of this specific query
+    const messageExists = await this.db.query.messageTable.findFirst({
+      where: (messages, { eq }) => eq(messages.id, messageId),
     })
-    if (!submissionExists) return null
 
-    if (caption && caption.length > CAPTION_MAX_LENGTH) return null
+    if (!messageExists) return null
 
-    const accRejId = (await this.makeCid(message.messageData)).toString()
+    const respId = (await this.makeCid(message.messageData)).toString()
 
-    const isOwnerOrModerator = await this.db.query.channelTable.findFirst({
-      where: (channels, { eq }) =>
-        eq(channels.createdById, message.messageData.rid.toString()),
-      // You might need to adjust this query based on how you determine ownership/moderation
-    })
-    if (!isOwnerOrModerator) return null
 
-    await this.db.insert(dbSchema.acceptedRejectedTable).values({
-      messageId: accRejId,
-      submissionId: submissionId,
+    /*
+      TODO: 
+      depending on what message type this is responding to, 
+      process approriate db updaets
+      ex: if it was response to submit message, update the submission status
+          if it was response to friend invite, update friend sttatus
+    */
+
+    // add this table
+    await this.db.insert(dbSchema.responseTable).values({
+      responseId: respId,
+      messageId: messageId,
       response: response.toString(),
-      caption: caption,
     })
 
-    return accRejId
+    return respId
   }
 }
