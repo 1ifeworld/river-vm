@@ -238,7 +238,7 @@ export type UserInviteFriendBody = {
  */
 export type GenericResponseBody = {
   messageId: string
-  response: 0 | 1
+  response: boolean
 }
 
 export function isGenericResponse(obj: unknown): obj is GenericResponseBody {
@@ -270,7 +270,7 @@ export type MessageDataBodyTypes =
   | CommentDeleteBody
   | UserSetNameBody
   | UserSetDataBody
-  | UserInviteFriendBody
+  | UserSetDataBody
   | GenericResponseBody
 
 export const CAPTION_MAX_LENGTH = 300
