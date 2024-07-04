@@ -21,7 +21,7 @@ import { jsonStringifyBigIntSafe } from "../utils.js"
 // OFFICIAL RIVER CLASS
 
 export class River {
-  private db: NodePgDatabase<typeof dbSchema>;
+  public db: NodePgDatabase<typeof dbSchema>;
   private authDb: NodePgDatabase<typeof dbSchema>;
   private pool: Pool;
   private authPool: Pool;

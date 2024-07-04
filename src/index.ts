@@ -6,7 +6,7 @@ import { deserializeMessageForHttp } from "./rvm/lib/buffers.js";
 
 const app = new Hono();
 
-const river = await River.flow();
+export const river = await River.flow();
 
 app.post("/messageBatch", async (c) => {
   try {
