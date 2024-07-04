@@ -4,6 +4,8 @@
  *
  */
 
+import { Hex, isHex } from "viem"
+
 export enum HashTypes {
   NONE = 0,
   BLAKE_3 = 1,
@@ -37,32 +39,32 @@ export enum MessageTypes {
 }
 
 export type Message = {
-  signer: string
+  signer: Hex
   messageData: MessageData
   hashType: HashTypes
-  hash: Uint8Array
+  hash: Hex
   sigType: SignatureTypes
-  sig: Uint8Array
+  sig: Hex
 }
 
 export function isMessage(data: Message): data is Message {
   return (
-    typeof data.signer === 'string' &&
+    isHex(data.signer) &&
     typeof data.messageData === 'object' &&
     typeof data.hashType === 'string' &&
     (data.hashType === 'sha256' || data.hashType === 'sha512') &&
-    data.hash instanceof Uint8Array &&
+    isHex(data.hash) &&
     typeof data.sigType === 'string' &&
     (data.sigType === 'ed25519' || data.sigType === 'secp256k1') &&
-    data.sig instanceof Uint8Array
-  )
+    isHex(data.sig)
+  );
 }
 
 export type MessageData = {
   rid: bigint
   timestamp: bigint
   type: MessageTypes
-  body: MessageDataBodyTypes
+  body: Hex
 }
 
 /*
