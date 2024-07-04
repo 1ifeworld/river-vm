@@ -1,20 +1,41 @@
 import { Hono } from 'hono'
-import { RiverVmClient } from './rvm/index.js'
-import { db } from './db.js'
+import type { Message } from './rvm/lib/types.js'
+import { River } from './rvm/index.js'
+import { isMessage } from './rvm/lib/types.js'
 
 const app = new Hono()
-const riverVm = new RiverVmClient(db)
+
+const river = await River.flow()
 
 app.post('/message', async (c) => {
-  // recieve data
-  const data = await c.req.json()
-  // verify cryptography of message
-  const verified = riverVm.verifyMessage(data.message)
-  if (!verified) return c.json({ message: 'message not verified' })
-  // process message
-  const vmResponse = riverVm.processMessage(data.message)
-  // return results of message
-  return c.json({ message: vmResponse })
+  try {
+    // Receive data
+    const data = await c.req.json()
+
+    if (!isMessage(data.message)) {
+      return c.json({ error: 'Invalid message format' }, 400)
+    }
+
+    const message: Message = data.message
+
+    const verified = await river.verifyMessage(message)
+
+    if (!verified) {
+      return c.json({ error: 'Message not verified' }, 401)
+    }
+    const processMessageResponse = await river.processMessage(message)
+
+    return c.json({ result: processMessageResponse })
+  } catch (error) {
+    console.error('Error processing message:', error)
+    return c.json({ error: 'Internal server error' }, 500)
+  }
+})
+
+process.on('SIGINT', async () => {
+  console.log('Shutting down gracefully')
+  await river.disconnect()
+  process.exit(0)
 })
 
 export default app
