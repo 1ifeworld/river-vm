@@ -1,15 +1,9 @@
 import { Pool } from "pg";
-import { drizzle } from "drizzle-orm/node-postgres";
-import type { NodePgDatabase } from "drizzle-orm/node-postgres";
-import * as dbSchema from "../schema.js";
 import { ed25519ph } from "@noble/curves/ed25519";
-import type {
-  Message,
-  GenericResponseBody,
-  ItemSubmitBody,
-  ItemCreateBody,
-  MessageData,
-} from "./types.js";
+import { base64url } from "@scure/base";
+import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
+import { eq } from "drizzle-orm";
+import * as dbSchema from "../schema.js";
 import {
   isChannelCreateBody,
   isItemCreateBody,
@@ -17,47 +11,11 @@ import {
   isGenericResponse,
   MessageTypes,
   CAPTION_MAX_LENGTH,
-} from "./types.js";
-import * as dagCbor from "@ipld/dag-cbor";
-import * as Block from "multiformats/block";
-import { sha256 } from "multiformats/hashes/sha2";
-import { base64url } from "@scure/base";
-import { messageBodyToBase64Url } from "../utils/index.js";
-import { eq } from "drizzle-orm";
-
-// HELPERS
-// TODO: move into own lib
-
-export async function makeCid(messageData: MessageData) {
-  return await Block.encode({
-    value: messageData,
-    codec: dagCbor,
-    hasher: sha256,
-  });
-}
-
-export function formatItemCreateMessage({
-  rid,
-  fileUri,
-}: {
-  rid: bigint;
-  fileUri: string;
-}): Message {
-  const message: Message = {
-    signer: "0x",
-    messageData: {
-      rid: rid,
-      timestamp: BigInt(Date.now()),
-      type: MessageTypes.ITEM_CREATE,
-      body: { uri: fileUri } as ItemCreateBody,
-    },
-    hashType: 1,
-    hash: new Uint8Array(0),
-    sigType: 1,
-    sig: new Uint8Array(0),
-  };
-  return message;
-}
+  Message,
+  GenericResponseBody,
+  ItemSubmitBody,
+} from "./lib/types.js";
+import { messageBodyToBase64Url, makeCid } from "./lib/utils.js"
 
 // OFFICIAL RIVER CLASS
 

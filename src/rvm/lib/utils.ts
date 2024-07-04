@@ -1,11 +1,19 @@
 import * as dagCbor from '@ipld/dag-cbor'
 import * as Block from 'multiformats/block'
 import { sha256 } from 'multiformats/hashes/sha2'
-import type { Message, MessageDataBodyTypes } from '../rvm/types.js'
+import { Message, MessageData, MessageDataBodyTypes, MessageTypes, ItemCreateBody } from './types.js'
 import { base64url } from '@scure/base'
 
 export async function messageToCid(message: Message) {
   return await Block.encode({ value: message, codec: dagCbor, hasher: sha256 })
+}
+
+export async function makeCid(messageData: MessageData) {
+  return await Block.encode({
+    value: messageData,
+    codec: dagCbor,
+    hasher: sha256,
+  });
 }
 
 export function messageBodyToBase64Url(messageBody: MessageDataBodyTypes): string {
@@ -32,4 +40,27 @@ export function base64UrlToMessageBody(encodedMessageBody: string): MessageDataB
     }
     return value;
   });
+}
+
+export function formatItemCreateMessage({
+  rid,
+  fileUri,
+}: {
+  rid: bigint;
+  fileUri: string;
+}): Message {
+  const message: Message = {
+    signer: "0x",
+    messageData: {
+      rid: rid,
+      timestamp: BigInt(Date.now()),
+      type: MessageTypes.ITEM_CREATE,
+      body: { uri: fileUri } as ItemCreateBody,
+    },
+    hashType: 1,
+    hash: new Uint8Array(0),
+    sigType: 1,
+    sig: new Uint8Array(0),
+  };
+  return message;
 }
