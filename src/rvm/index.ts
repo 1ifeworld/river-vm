@@ -1,9 +1,9 @@
 import { Pool } from "pg";
 import { ed25519ph } from "@noble/curves/ed25519";
-import { base64url } from "@scure/base";
 import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
 import { eq } from "drizzle-orm";
-import * as dbSchema from "../schema.js";
+import { toHex } from "viem";
+import * as dbSchema from "./schema.js";
 import {
   isChannelCreateBody,
   isItemCreateBody,
@@ -15,7 +15,8 @@ import {
   GenericResponseBody,
   ItemSubmitBody,
 } from "./lib/types.js";
-import { messageBodyToBase64Url, makeCid } from "./lib/utils.js"
+import { messageDataToCid, messageDataToHash } from "./lib/buffers.js";
+import { jsonStringifyBigIntSafe } from "../utils.js"
 
 // OFFICIAL RIVER CLASS
 
@@ -82,17 +83,15 @@ export class River {
       await this.authDb.query.keyTable.findFirst({
         where: (keys, { and, eq }) =>
           and(
-            eq(keys.userid, message.messageData.rid.toString()),
-            eq(keys.publickey, message.signer)
+            eq(keys.userid, message.messageData.rid.toString()), // shouldnt need to conver tthis to string?
+            eq(keys.publickey, toHex(message.signer))
           ),
       });
 
     if (!keyExistsForUserAtTimestamp) return false;
 
     // 3. verify hash of message = message.messageHash
-    // investigate actual hashing function
-
-    const computedHash = await makeCid(message.messageData);
+    const computedHash = messageDataToHash(message.messageData);
     if (computedHash.toString() !== message.hash.toString()) return false;
 
     // 4. verify signature is valid over hash
@@ -135,12 +134,12 @@ export class River {
       rid: message.messageData.rid,
       timestamp: message.messageData.timestamp,
       type: message.messageData.type,
-      body: messageBodyToBase64Url(message.messageData.body),
-      signer: message.signer,
+      body: jsonStringifyBigIntSafe(message.messageData.body),
+      signer: toHex(message.signer),
       hashType: message.hashType,
-      hash: base64url.encode(message.hash),
+      hash: toHex(message.hash),
       sigType: message.sigType,
-      sig: base64url.encode(message.sig),
+      sig: toHex(message.sig),
     });
   }
 
@@ -161,7 +160,7 @@ export class River {
     // make sure message data body is correct type
     if (!isChannelCreateBody(message.messageData.body)) return null;
     // generate channel id
-    const channelId = (await makeCid(message.messageData)).toString();
+    const channelId = (await messageDataToCid(message.messageData)).toString();
     // update RVM storage
     await this.db.insert(dbSchema.channelTable).values({
       id: channelId,
@@ -188,7 +187,7 @@ export class River {
     // make sure message data body is correct type
     if (!isItemCreateBody(message.messageData.body)) return null;
     // generate itemId
-    const itemId = (await makeCid(message.messageData)).toString();
+    const itemId = (await messageDataToCid(message.messageData)).toString();
     // update RVM storage
     await this.db.insert(dbSchema.ItemTable).values({
       id: itemId,
@@ -225,7 +224,7 @@ export class River {
 
     if (text && text.length > CAPTION_MAX_LENGTH) return null;
 
-    const submissionId = (await makeCid(message.messageData)).toString();
+    const submissionId = (await messageDataToCid(message.messageData)).toString();
 
     // TODO: make this an isOwnerOrMod lookup
     const isOwner = await this.db.query.channelTable.findFirst({
@@ -273,7 +272,7 @@ export class River {
 
     if (!messageExists) return null;
 
-    const responseId = (await makeCid(message.messageData)).toString();
+    const responseId = (await messageDataToCid(message.messageData)).toString();
 
     // process things differently depending on type of message
     // the genericResponse was targeting

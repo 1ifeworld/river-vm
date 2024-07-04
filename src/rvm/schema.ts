@@ -5,7 +5,7 @@ import {
   timestamp,
   numeric,
   bigint,
-  boolean
+  boolean,
 } from 'drizzle-orm/pg-core'
 
 export const usersTable = pgTable('users', {
@@ -41,8 +41,8 @@ export const keyTable = pgTable(
       .references(() => usersTable.id),
     custodyAddress: text('custodyAddress').notNull(),
     deviceid: text('deviceid').notNull(),
-    publickey: text('publickey').notNull(),
-    encryptedprivatekey: text('encryptedprivatekey').notNull(),
+    publickey: text('publickey').notNull(), // toHex(uint8array pub key data)
+    encryptedprivatekey: text('encryptedprivatekey').notNull(), // toHex(encrypted uint8array priv key data)
   },
   (table) => ({
     primaryKey: [table.userid, table.custodyAddress, table.deviceid],
@@ -57,7 +57,7 @@ export const messageTable = pgTable('messages', {
   rid: bigint('rid', { mode: 'bigint' }),
   timestamp: bigint('timestamp', { mode: 'bigint' }),
   type: integer('type'),
-  body: text('body'), // this will be base64url encoded body object
+  body: text('body'), // this will be JSON.stringified message body object
   signer: text('signer').notNull(),
   hashType: integer('hashtype').notNull(),
   hash: text('hash').notNull(), 
