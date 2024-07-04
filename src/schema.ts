@@ -1,10 +1,11 @@
 import {
   integer,
   pgTable,
-  serial,
   text,
   timestamp,
   numeric,
+  bigint,
+  boolean
 } from 'drizzle-orm/pg-core'
 
 export const usersTable = pgTable('users', {
@@ -52,15 +53,17 @@ export type InsertHash = typeof keyTable.$inferInsert
 export type SelectHash = typeof keyTable.$inferSelect
 
 export const messageTable = pgTable('messages', {
-  id: text('messageid').primaryKey(),
+  id: text('id').primaryKey(),
+  rid: bigint('rid', { mode: 'bigint' }),
+  timestamp: bigint('timestamp', { mode: 'bigint' }),
+  type: integer('type'),
+  body: text('body'), // this will be base64url encoded body object
   signer: text('signer').notNull(),
-  messageType: text('messagetype').notNull(),
-  messageBody: text('messagebody').notNull(),
-  hashType: text('hashtype').notNull(),
-  hash: numeric('hash').notNull(),
-  sigType: text('sigtype').notNull(),
+  hashType: integer('hashtype').notNull(),
+  hash: text('hash').notNull(), 
+  sigType: integer('sigtype').notNull(),
   sig: text('sig').notNull(),
-})
+});
 
 export type InsertPost = typeof messageTable.$inferInsert
 export type SelectPost = typeof messageTable.$inferSelect
@@ -84,7 +87,7 @@ export type InsertChannel = typeof channelTable.$inferInsert
 export type SelectChannel = typeof channelTable.$inferSelect
 
 export const ItemTable = pgTable('items', {
-  id: text('messageId')
+  id: text('itemId')
     .notNull()
     .references(() => messageTable.id)
     .primaryKey(),
@@ -102,7 +105,7 @@ export type InsertItem = typeof ItemTable.$inferInsert
 export type SelectItem = typeof ItemTable.$inferSelect
 
 export const submissionsTable = pgTable('submissions', {
-  id: text('messageId')
+  id: text('submissionId')
     .notNull()
     .references(() => messageTable.id)
     .primaryKey(),
@@ -114,26 +117,24 @@ export const submissionsTable = pgTable('submissions', {
   updatedAt: timestamp('updated_at')
     .notNull()
     .$onUpdate(() => new Date()),
+  status: integer('status')
 })
 
 export type InsertSubmission = typeof submissionsTable.$inferInsert
 export type SelectSubmission = typeof submissionsTable.$inferSelect
 
-export const acceptedRejectedTable = pgTable('acceptedrejected', {
-  messageId: text('messageId')
+export const responsesTable = pgTable('responses', {
+  id: text('responses')
     .notNull()
     .references(() => messageTable.id)
     .primaryKey(),
-  submissionId: text('submissionid')
-    .notNull()
-    .references(() => submissionsTable.id),
-  response: text('response').notNull(),
-  caption: text('caption'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at')
-    .notNull()
-    .$onUpdate(() => new Date()),
+  // would be nice if this could reference the specific message
+  // makes me wonder if we should have specific message response types per message that requires a respojnse    
+  targetMessageId: text('targetMessageId')
+    .notNull(),
+  response: boolean('response').notNull()
 })
 
-export type InsertacceptedRejected = typeof acceptedRejectedTable.$inferInsert
-export type SelectacceptedRejected = typeof acceptedRejectedTable.$inferSelect
+export type InsertResponses = typeof responsesTable.$inferInsert
+export type SelectResponses = typeof responsesTable.$inferSelect
