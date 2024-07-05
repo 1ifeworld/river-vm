@@ -1,18 +1,24 @@
 {
   "scripts": {
     "start": "bun run src/index.ts",
-    "start:yoga": "bun run src/server.ts",
+    "start:yoga": "bun run src/graphql.ts",
     "dev": "bun run --hot src/index.ts",
     "lint": "biome check . --write",
     "format": "biome format . --write"
   },
   "dependencies": {
+    "@ipld/dag-cbor": "^9.2.1",
+    "@noble/curves": "^1.4.0",
+    "@noble/hashes": "^1.4.0",
+    "@scure/base": "^1.1.7",
     "drizzle-graphql": "^0.8.3",
     "drizzle-orm": "^0.31.2",
     "graphql": "^16.8.1",
     "graphql-yoga": "^5.3.1",
     "hono": "^4.4.5",
-    "pg": "^8.12.0"
+    "multiformats": "^13.1.1",
+    "pg": "^8.12.0",
+    "viem": "^2.17.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.1",

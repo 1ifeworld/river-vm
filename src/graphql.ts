@@ -1,8 +1,10 @@
 import { buildSchema } from 'drizzle-graphql'
 import { createYoga } from 'graphql-yoga'
-import { db } from './db.js'
+import { river } from './index.js'
 
-const { schema } = buildSchema(db)
+
+
+const { schema } = buildSchema(river.db)
 
 const yoga = createYoga({
   schema,
@@ -13,6 +15,7 @@ const yoga = createYoga({
 })
 
 const server = Bun.serve({
+  port: 9000,
   fetch: yoga,
 })
 
