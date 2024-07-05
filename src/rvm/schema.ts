@@ -16,14 +16,14 @@ import { relations } from "drizzle-orm";
 * ****************
 */
 
-export const users = pgTable('users', {
-  id: text('userid').primaryKey(),
-  to: text('to'),
-  recovery: text('recovery'),
-  timestamp: timestamp('timestamp'),
-  log_addr: text('log_addr'),
-  block_num: numeric('block_num'),
-})
+// export const users = pgTable('users', {
+//   id: text('userid').primaryKey(),
+//   to: text('to'),
+//   recovery: text('recovery'),
+//   timestamp: timestamp('timestamp'),
+//   log_addr: text('log_addr'),
+//   block_num: numeric('block_num'),
+// })
 
 /*
 * ****************
@@ -31,21 +31,21 @@ export const users = pgTable('users', {
 * ****************
 */
 
-export const keyTable = pgTable(
-  'keys',
-  {
-    userid: numeric('userid')
-      .notNull()
-      .references(() => users.id),
-    custodyAddress: text('custodyAddress').notNull(),
-    deviceid: text('deviceid').notNull(),
-    publickey: text('publickey').notNull(), // toHex(uint8array pub key data)
-    encryptedprivatekey: text('encryptedprivatekey').notNull(), // toHex(encrypted uint8array priv key data)
-  },
-  (table) => ({
-    primaryKey: [table.userid, table.custodyAddress, table.deviceid],
-  }),
-)
+// export const keyTable = pgTable(
+//   'keys',
+//   {
+//     userid: numeric('userid')
+//       .notNull()
+//       .references(() => users.id),
+//     custodyAddress: text('custodyAddress').notNull(),
+//     deviceid: text('deviceid').notNull(),
+//     publickey: text('publickey').notNull(), // toHex(uint8array pub key data)
+//     encryptedprivatekey: text('encryptedprivatekey').notNull(), // toHex(encrypted uint8array priv key data)
+//   },
+//   (table) => ({
+//     primaryKey: [table.userid, table.custodyAddress, table.deviceid],
+//   }),
+// )
 
 /*
 * ****************

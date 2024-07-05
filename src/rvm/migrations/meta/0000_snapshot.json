@@ -1,5 +1,5 @@
 {
-  "id": "3f908327-60da-4b70-823f-bd1be4fd43de",
+  "id": "9a9bf5d9-c4ed-435d-bedb-9c2026ac0694",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -57,60 +57,6 @@
       },
       "indexes": {},
       "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.keys": {
-      "name": "keys",
-      "schema": "",
-      "columns": {
-        "userid": {
-          "name": "userid",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "custodyAddress": {
-          "name": "custodyAddress",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "deviceid": {
-          "name": "deviceid",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "publickey": {
-          "name": "publickey",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "encryptedprivatekey": {
-          "name": "encryptedprivatekey",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "keys_userid_users_userid_fk": {
-          "name": "keys_userid_users_userid_fk",
-          "tableFrom": "keys",
-          "tableTo": "users",
-          "columnsFrom": [
-            "userid"
-          ],
-          "columnsTo": [
-            "userid"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -303,52 +249,6 @@
         "animationuri": {
           "name": "animationuri",
           "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.users": {
-      "name": "users",
-      "schema": "",
-      "columns": {
-        "userid": {
-          "name": "userid",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "to": {
-          "name": "to",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "recovery": {
-          "name": "recovery",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "timestamp": {
-          "name": "timestamp",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "log_addr": {
-          "name": "log_addr",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "block_num": {
-          "name": "block_num",
-          "type": "numeric",
           "primaryKey": false,
           "notNull": false
         }
