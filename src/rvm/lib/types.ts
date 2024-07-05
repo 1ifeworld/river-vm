@@ -256,8 +256,8 @@ export function isGenericResponse(obj: unknown): obj is GenericResponseBody {
     "messageId" in obj &&
     typeof (obj as { messageId: unknown }).messageId === "string" &&
     "response" in obj &&
-    ((obj as { response: unknown }).response === 0 ||
-      (obj as { response: unknown }).response === 1)
+    ((obj as { response: unknown }).response === false ||
+      (obj as { response: unknown }).response === true)
   );
 }
 

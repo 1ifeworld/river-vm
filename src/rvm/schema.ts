@@ -6,10 +6,18 @@ import {
   numeric,
   bigint,
   boolean,
+  foreignKey
 } from 'drizzle-orm/pg-core'
+import { relations } from "drizzle-orm";
 
-export const usersTable = pgTable('users', {
-  id: numeric('userid').primaryKey(),
+/*
+* ****************
+* USERS
+* ****************
+*/
+
+export const users = pgTable('users', {
+  id: text('userid').primaryKey(),
   to: text('to'),
   recovery: text('recovery'),
   timestamp: timestamp('timestamp'),
@@ -17,28 +25,18 @@ export const usersTable = pgTable('users', {
   block_num: numeric('block_num'),
 })
 
-export type InsertUser = typeof usersTable.$inferInsert
-export type SelectUser = typeof usersTable.$inferSelect
-
-export const sessionsTable = pgTable('sessions', {
-  id: text('id').primaryKey(),
-  userId: numeric('userid')
-    .notNull()
-    .references(() => usersTable.id),
-  deviceId: text('deviceid').notNull(),
-  created: timestamp('created'),
-  expiresAt: timestamp('expiresat').notNull(),
-})
-
-export type InsertSession = typeof sessionsTable.$inferInsert
-export type SelectSession = typeof sessionsTable.$inferSelect
+/*
+* ****************
+* KEYS
+* ****************
+*/
 
 export const keyTable = pgTable(
   'keys',
   {
     userid: numeric('userid')
       .notNull()
-      .references(() => usersTable.id),
+      .references(() => users.id),
     custodyAddress: text('custodyAddress').notNull(),
     deviceid: text('deviceid').notNull(),
     publickey: text('publickey').notNull(), // toHex(uint8array pub key data)
@@ -49,8 +47,28 @@ export const keyTable = pgTable(
   }),
 )
 
-export type InsertHash = typeof keyTable.$inferInsert
-export type SelectHash = typeof keyTable.$inferSelect
+/*
+* ****************
+* MESSAGES
+* ****************
+*/
+
+// private async _storeValidMessage(
+//   messageId: string,
+//   message: Message
+// ): Promise<void> {
+//   await this.db.insert(dbSchema.messageTable).values({
+//     id: messageId,
+//     rid: message.messageData.rid,
+//     timestamp: message.messageData.timestamp,
+//     type: message.messageData.type,
+//     body: jsonStringifyBigIntSafe(message.messageData.body),
+//     signer: toHex(message.signer),
+//     hashType: message.hashType,
+//     hash: toHex(message.hash),
+//     sigType: message.sigType,
+//     sig: toHex(message.sig),
+//   });
 
 export const messageTable = pgTable('messages', {
   id: text('id').primaryKey(),
@@ -58,83 +76,109 @@ export const messageTable = pgTable('messages', {
   timestamp: bigint('timestamp', { mode: 'bigint' }),
   type: integer('type'),
   body: text('body'), // this will be JSON.stringified message body object
-  signer: text('signer').notNull(),
-  hashType: integer('hashtype').notNull(),
-  hash: text('hash').notNull(), 
-  sigType: integer('sigtype').notNull(),
-  sig: text('sig').notNull(),
+  signer: text('signer'),
+  hashType: integer('hashtype'),
+  hash: text('hash'),
+  sigType: integer('sigtype'),
+  sig: text('sig')
 });
 
-export type InsertPost = typeof messageTable.$inferInsert
-export type SelectPost = typeof messageTable.$inferSelect
+/*
+* ****************
+* URI
+* ****************
+*/
+
+export const uriInfo = pgTable("uri_info", {
+  id: text("id").primaryKey(),
+  name: text("name"),
+  description: text("description"),
+  imageUri: text("imageuri"),
+  animationUri: text("animationuri")
+});
+
+/*
+* ****************
+* CHANNELS
+* ****************
+*/
 
 export const channelTable = pgTable('channels', {
-  id: text('messageid')
-    .notNull()
-    .references(() => messageTable.id)
-    .primaryKey(),
-  content: text('content').notNull(),
-  timestamp: integer('timestamp').notNull(),
-  createdById: numeric('createdbyid')
-    .notNull()
-    .references(() => usersTable.id),
-  uri: text('uri').notNull(),
-  name: text('name').notNull(),
-  description: text('description').notNull(),
+  id: text('id').primaryKey(),
+  createdBy: bigint("createdby", {mode: "bigint"}),
+  uri: text('uri')
 })
 
-export type InsertChannel = typeof channelTable.$inferInsert
-export type SelectChannel = typeof channelTable.$inferSelect
+export const channelRelations = relations(channelTable, ({ one, many }) => ({
+  uriInfo: one(uriInfo, {
+    fields: [channelTable.uri],
+    references: [uriInfo.id],
+  }),
+  submissions: many(submissionsTable)
+}));
 
-export const ItemTable = pgTable('items', {
-  id: text('itemId')
-    .notNull()
-    .references(() => messageTable.id)
-    .primaryKey(),
-  createdById: numeric('createdbyid')
-    .notNull()
-    .references(() => usersTable.id),
-  uri: text('uri').notNull(),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at')
-    .notNull()
-    .$onUpdate(() => new Date()),
+
+/*
+* ****************
+* ITEMS
+* ****************
+*/
+
+export const itemTable = pgTable('items', {
+  id: text('id').primaryKey(),
+  createdBy: bigint("createdby", {mode: "bigint"}),
+  uri: text('uri')
 })
 
-export type InsertItem = typeof ItemTable.$inferInsert
-export type SelectItem = typeof ItemTable.$inferSelect
+export const itemRelations = relations(itemTable, ({ one, many }) => ({
+  uriInfo: one(uriInfo, {
+    fields: [itemTable.uri],
+    references: [uriInfo.id],
+  }),
+  submissionTable: many(submissionsTable)
+}));
+
+/*
+* ****************
+* SUBMISSIONS
+* ****************
+*/
 
 export const submissionsTable = pgTable('submissions', {
-  id: text('submissionId')
-    .notNull()
-    .references(() => messageTable.id)
-    .primaryKey(),
-  content: text('content').notNull(),
-  userId: numeric('userid')
-    .notNull()
-    .references(() => usersTable.id),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at')
-    .notNull()
-    .$onUpdate(() => new Date()),
-  status: integer('status')
+  id: text('id').primaryKey(),
+  createdBy: bigint("createdby", {mode: "bigint"}),
+  status: integer("status"), // 0 = pending | 1 = rejected | 2 = accepted | 3 = owner submission
+  itemId: text('itemid').notNull(),
+  channelId: text('channelid').notNull(),
+  response: text('response')
 })
 
-export type InsertSubmission = typeof submissionsTable.$inferInsert
-export type SelectSubmission = typeof submissionsTable.$inferSelect
+export const submissionsRelations = relations(submissionsTable, ({ one }) => ({
+  itemId: one(itemTable, {
+    fields: [submissionsTable.itemId],
+    references: [itemTable.id],
+  }),
+  channelId: one(channelTable, {
+    fields: [submissionsTable.channelId],
+    references: [channelTable.id],
+  }),
+  responseInfo: one(responseInfo, {
+    fields: [submissionsTable.response],
+    references: [responseInfo.targetMessageId],
+  }),  
+}));
 
-export const responsesTable = pgTable('responses', {
-  id: text('responses')
-    .notNull()
-    .references(() => messageTable.id)
-    .primaryKey(),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  // would be nice if this could reference the specific message
-  // makes me wonder if we should have specific message response types per message that requires a respojnse    
-  targetMessageId: text('targetMessageId')
-    .notNull(),
-  response: boolean('response').notNull()
-})
+/*
+* ****************
+* RESPONSES
+* ****************
+*/
 
-export type InsertResponses = typeof responsesTable.$inferInsert
-export type SelectResponses = typeof responsesTable.$inferSelect
+// TODO: unsolved not able to render all of responesInfo when querying submissionTable
+// reserach more into foreign keys 
+
+export const responseInfo = pgTable("response_info", {
+  id: text("id").primaryKey(),
+  targetMessageId: text("targetmessageid").references(() => submissionsTable.id),
+  response: boolean("response")
+});

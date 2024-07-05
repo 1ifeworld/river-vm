@@ -50,6 +50,7 @@ export function serializeMessageForHttp(message: Message): string {
 }
 
 export function deserializeMessageForHttp(jsonString: string): Message {
+  console.log("what is the json string getting passed in: ", jsonString)
   const encodedMessage: {
     signer: string;
     messageData: {

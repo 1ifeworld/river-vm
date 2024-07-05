@@ -39,11 +39,11 @@ export class River {
   }
 
   static async flow(): Promise<River> {
-    const connectionString = process.env.DATABASE_URL!;
+    const riverVmConnectionString = process.env.DATABASE_URL!;
     const authConnectionString = process.env.AUTH_DATABASE_URL!;
 
-    const pool = new Pool({ connectionString });
-    const authPool = new Pool({ connectionString: authConnectionString });
+    const pool = new Pool({ connectionString: riverVmConnectionString });
+    const authPool = new Pool({ connectionString: authConnectionString }); 
 
     try {
       const client = await pool.connect();
@@ -67,12 +67,40 @@ export class River {
     await this.authPool.end();
   }
 
+  /*
+    URI carve out
+  */
+
+  public async storeUris(uris: string[]) {
+    console.log("uris in storeUris in river vm: ", uris)
+    for (let i = 0; i < uris.length; ++i) {
+      const name = `${uris[i].slice(0,10)}-name`
+      await this.db.insert(dbSchema.uriInfo).values({
+        id: uris[i],
+        name: name
+      }).onConflictDoUpdate({ target: dbSchema.uriInfo.id, set: { id: uris[i], name: name } });
+    }
+  }
+
+
+  // public async storeUsers(uris: string[]) {
+  //   console.log("uris in storeUris in river vm: ", uris)
+  //   for (let i = 0; i < uris.length; ++i) {
+  //     const name = `${uris[i].slice(0,10)}-name`
+  //     await this.authDb.query(dbSchema.users).values({
+  //       id: uris[i],
+  //       name: name
+  //     }).onConflictDoUpdate({ target: dbSchema.uriInfo.id, set: { id: uris[i], name: name } });
+  //   }
+  // }
+
+
   // simple getters should not replace graphql over authdb
   // NOTE: i removed all of these because unncessary code at the moment
 
   public async verifyMessage(message: Message): Promise<boolean> {
     // 1. lookup user id
-    const userExists = await this.authDb.query.usersTable.findFirst({
+    const userExists = await this.authDb.query.users.findFirst({
       where: (users, { eq }) =>
         eq(users.id, message.messageData.rid.toString()),
     });
@@ -105,6 +133,8 @@ export class River {
   public async processMessage(message: Message): Promise<string | null> {
     if (!Object.values(MessageTypes).includes(message.messageData.type))
       return null;
+
+    console.log("geting through message type check")
 
     const handlers: {
       [K in MessageTypes]?: (message: Message) => Promise<string | null>;
@@ -162,16 +192,13 @@ export class River {
     // generate channel id
     const channelId = (await messageDataToCid(message.messageData)).toString();
     // update RVM storage
+    console.log("are we getting this faR?")
+    console.log("message.messageData.body.uri", message.messageData.body.uri,)
     await this.db.insert(dbSchema.channelTable).values({
       id: channelId,
-      content: JSON.stringify(message.messageData.body),
-      timestamp: Number(message.messageData.timestamp),
-      createdById: message.messageData.rid.toString(),
+      createdBy: message.messageData.rid,
       uri: message.messageData.body.uri,
-      // destructure cid to extract name and description?
-      name: "",
-      description: "",
-    });
+    }).onConflictDoUpdate({ target: dbSchema.channelTable.id, set: { id: channelId, uri: message.messageData.body.uri } });
     return channelId;
   }
 
@@ -189,11 +216,16 @@ export class River {
     // generate itemId
     const itemId = (await messageDataToCid(message.messageData)).toString();
     // update RVM storage
-    await this.db.insert(dbSchema.ItemTable).values({
+    await this.db.insert(dbSchema.itemTable).values({
       id: itemId,
-      createdById: message.messageData.rid.toString(),
+      createdBy: message.messageData.rid,
       uri: message.messageData.body.uri,
-    });
+    }).onConflictDoUpdate({ target: dbSchema.itemTable.id, set: { id: itemId, uri: message.messageData.body.uri } });
+    // create the uri row, that will then get updated by lambda
+    await this.db.insert(dbSchema.uriInfo).values({
+      id:  message.messageData.body.uri,
+    }).onConflictDoNothing()
+
     return itemId;
   }
 
@@ -212,7 +244,7 @@ export class River {
     const { itemId, channelId, text } = message.messageData
       .body as ItemSubmitBody;
 
-    const itemExists = await this.db.query.ItemTable.findFirst({
+    const itemExists = await this.db.query.itemTable.findFirst({
       where: (items, { eq }) => eq(items.id, itemId),
     });
     if (!itemExists) return null;
@@ -225,20 +257,23 @@ export class River {
     if (text && text.length > CAPTION_MAX_LENGTH) return null;
 
     const submissionId = (await messageDataToCid(message.messageData)).toString();
+  
+    console.log("before is owner check")
 
     // TODO: make this an isOwnerOrMod lookup
     const isOwner = await this.db.query.channelTable.findFirst({
       where: (channels, { and, eq }) =>
         and(
           eq(channels.id, channelId),
-          eq(channels.createdById, message.messageData.rid.toString())
+          eq(channels.createdBy, message.messageData.rid)
         ),
     });
 
     await this.db.insert(dbSchema.submissionsTable).values({
       id: submissionId,
-      content: JSON.stringify(message.messageData.body),
-      userId: message.messageData.rid.toString(),
+      createdBy: message.messageData.rid,
+      itemId: itemId,
+      channelId: channelId,
       status: isOwner ? 3 : 0, // channel owenrs/mods get their submissions automatically set to 2 (0 = pending, 1 = declined, 2 = accepted, 3 = owner/mod)
     });
 
@@ -257,9 +292,11 @@ export class River {
   private async _msg17_genericResponse(
     message: Message
   ): Promise<string | null> {
+    console.log("is messaging even reaching handler")
     if (!isGenericResponse(message.messageData.body)) return null;
     const { messageId, response } = message.messageData
       .body as GenericResponseBody;
+      console.log("are we shaped correcty?")
 
     // NOTE: maybe should update messageId format to prepend with messageId
     // so that we dont need to keep a global message table and can just
@@ -269,10 +306,12 @@ export class River {
     const messageExists = await this.db.query.messageTable.findFirst({
       where: (messages, { eq }) => eq(messages.id, messageId),
     });
-
-    if (!messageExists) return null;
+    console.log("does message exist?", messageExists)
+    console.error(null, {messageExists})
+    if (!messageExists) return null
 
     const responseId = (await messageDataToCid(message.messageData)).toString();
+
 
     // process things differently depending on type of message
     // the genericResponse was targeting
@@ -287,6 +326,15 @@ export class River {
         if (!submission) return null;
         // return null if submission status not equal to pending
         if (submission.status != 0) return null;
+        // Only allow channel owner to accept/reject submissions
+        const isOwner = await this.db.query.channelTable.findFirst({
+          where: (channels, { and, eq }) =>
+            and(
+              eq(channels.id, submission.channelId),
+              eq(channels.createdBy, message.messageData.rid)
+            ),
+        });
+        if (!isOwner) return null
         // update status field
         await this.db
           .update(dbSchema.submissionsTable)
@@ -305,7 +353,7 @@ export class River {
     }
 
     // add this table
-    await this.db.insert(dbSchema.responsesTable).values({
+    await this.db.insert(dbSchema.responseInfo).values({
       id: responseId,
       targetMessageId: messageId,
       response: response,
