@@ -1,0 +1,369 @@
+{
+  "id": "3f908327-60da-4b70-823f-bd1be4fd43de",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.channels": {
+      "name": "channels",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "createdby": {
+          "name": "createdby",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "uri": {
+          "name": "uri",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.items": {
+      "name": "items",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "createdby": {
+          "name": "createdby",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "uri": {
+          "name": "uri",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.keys": {
+      "name": "keys",
+      "schema": "",
+      "columns": {
+        "userid": {
+          "name": "userid",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "custodyAddress": {
+          "name": "custodyAddress",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "deviceid": {
+          "name": "deviceid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "publickey": {
+          "name": "publickey",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "encryptedprivatekey": {
+          "name": "encryptedprivatekey",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "keys_userid_users_userid_fk": {
+          "name": "keys_userid_users_userid_fk",
+          "tableFrom": "keys",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userid"
+          ],
+          "columnsTo": [
+            "userid"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.messages": {
+      "name": "messages",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "rid": {
+          "name": "rid",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "timestamp": {
+          "name": "timestamp",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "name": "type",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "signer": {
+          "name": "signer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "hashtype": {
+          "name": "hashtype",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "hash": {
+          "name": "hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sigtype": {
+          "name": "sigtype",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sig": {
+          "name": "sig",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.response_info": {
+      "name": "response_info",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "targetmessageid": {
+          "name": "targetmessageid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "response": {
+          "name": "response",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "response_info_targetmessageid_submissions_id_fk": {
+          "name": "response_info_targetmessageid_submissions_id_fk",
+          "tableFrom": "response_info",
+          "tableTo": "submissions",
+          "columnsFrom": [
+            "targetmessageid"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.submissions": {
+      "name": "submissions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "createdby": {
+          "name": "createdby",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "itemid": {
+          "name": "itemid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "channelid": {
+          "name": "channelid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "response": {
+          "name": "response",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.uri_info": {
+      "name": "uri_info",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "imageuri": {
+          "name": "imageuri",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "animationuri": {
+          "name": "animationuri",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "userid": {
+          "name": "userid",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "to": {
+          "name": "to",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "recovery": {
+          "name": "recovery",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "timestamp": {
+          "name": "timestamp",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "log_addr": {
+          "name": "log_addr",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "block_num": {
+          "name": "block_num",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
