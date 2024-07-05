@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "start": "bun run src/index.ts",
+    "start": "bun run src/index.ts & bun run src/graphql.ts",
+    "start:rvm": "bun run src/index.ts",
     "start:yoga": "bun run src/graphql.ts",
     "dev": "bun run --hot src/index.ts",
     "lint": "biome check . --write",
