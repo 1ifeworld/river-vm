@@ -100,23 +100,23 @@ export class River {
 
   public async verifyMessage(message: Message): Promise<boolean> {
     // 1. lookup user id
-    const userExists = await this.authDb.query.users.findFirst({
-      where: (users, { eq }) =>
-        eq(users.id, message.messageData.rid.toString()),
-    });
-    if (!userExists) return false;
+    // const userExists = await this.authDb.query.users.findFirst({
+    //   where: (users, { eq }) =>
+    //     eq(users.id, message.messageData.rid.toString()),
+    // });
+    // if (!userExists) return false;
 
-    // 2. lookup signing key
-    const keyExistsForUserAtTimestamp =
-      await this.authDb.query.keyTable.findFirst({
-        where: (keys, { and, eq }) =>
-          and(
-            eq(keys.userid, message.messageData.rid.toString()), // shouldnt need to conver tthis to string?
-            eq(keys.publickey, toHex(message.signer))
-          ),
-      });
+    // // 2. lookup signing key
+    // const keyExistsForUserAtTimestamp =
+    //   await this.authDb.query.keyTable.findFirst({
+    //     where: (keys, { and, eq }) =>
+    //       and(
+    //         eq(keys.userid, message.messageData.rid.toString()), // shouldnt need to conver tthis to string?
+    //         eq(keys.publickey, toHex(message.signer))
+    //       ),
+    //   });
 
-    if (!keyExistsForUserAtTimestamp) return false;
+    // if (!keyExistsForUserAtTimestamp) return false;
 
     // 3. verify hash of message = message.messageHash
     const computedHash = messageDataToHash(message.messageData);

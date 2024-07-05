@@ -10,14 +10,6 @@ CREATE TABLE IF NOT EXISTS "items" (
 	"uri" text
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "keys" (
-	"userid" numeric NOT NULL,
-	"custodyAddress" text NOT NULL,
-	"deviceid" text NOT NULL,
-	"publickey" text NOT NULL,
-	"encryptedprivatekey" text NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "messages" (
 	"id" text PRIMARY KEY NOT NULL,
 	"rid" bigint,
@@ -53,21 +45,6 @@ CREATE TABLE IF NOT EXISTS "uri_info" (
 	"imageuri" text,
 	"animationuri" text
 );
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "users" (
-	"userid" text PRIMARY KEY NOT NULL,
-	"to" text,
-	"recovery" text,
-	"timestamp" timestamp,
-	"log_addr" text,
-	"block_num" numeric
-);
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "keys" ADD CONSTRAINT "keys_userid_users_userid_fk" FOREIGN KEY ("userid") REFERENCES "public"."users"("userid") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "response_info" ADD CONSTRAINT "response_info_targetmessageid_submissions_id_fk" FOREIGN KEY ("targetmessageid") REFERENCES "public"."submissions"("id") ON DELETE no action ON UPDATE no action;
