@@ -12,10 +12,10 @@ const yoga = createYoga({
   },
 })
 
-// const port = process.env.PORT || 4001
+const port = process.env.PORT || 4001
 
 const server = Bun.serve({
-  port: 4001,
+  port,
   fetch: yoga,
 })
 
