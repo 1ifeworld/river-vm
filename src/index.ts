@@ -8,6 +8,10 @@ const app = new Hono()
 
 export const river = await River.flow()
 
+app.get('/', (c) => {
+  return c.text('RVM is running')
+})
+
 app.post('/messageBatch', async (c) => {
   try {
     // Receive data
@@ -70,5 +74,3 @@ process.on('SIGINT', async () => {
 })
 
 export default app
-
-console.log('Server ready')
