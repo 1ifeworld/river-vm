@@ -73,4 +73,11 @@ process.on('SIGINT', async () => {
   process.exit(0)
 })
 
-export default app
+const port = process.env.PORT || 4000
+
+export default {
+  port,
+  fetch: app.fetch,
+}
+
+console.info(`Server is running on port ${port}`)

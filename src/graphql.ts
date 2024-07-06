@@ -12,16 +12,11 @@ const yoga = createYoga({
   },
 })
 
+const port = process.env.PORT || 4001
+
 const server = Bun.serve({
+  port,
   fetch: yoga,
-  port: 9000,
 })
 
-// console.info(
-//   `Server is running on ${new URL(
-//     yoga.graphqlEndpoint,
-//     `http://${server.hostname}:${server.port}`,
-//   )}`,
-// )
-
-console.info(`Sever is running on ${server.port}`)
+console.info(`GQL server is running on ${server.port}`)
