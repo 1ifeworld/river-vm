@@ -2,44 +2,42 @@ import {
   Message,
   MessageTypes,
   ChannelCreateBody,
-} from "../src/rvm/lib/types.js";
-import { base64 } from "@scure/base";
+} from '../src/rvm/lib/types.js'
+import { base64 } from '@scure/base'
 
-const exampleUri =
-  "bafybeif2iaewojwxsff7j52j673x6b3ql5kghoftvgfmop3vka3gkjqrbq";
+const exampleUri = 'bafybeif2iaewojwxsff7j52j673x6b3ql5kghoftvgfmop3vka3gkjqrbq'
 
 async function createChannel(channelUri: string): Promise<void> {
   const createChannelMessage = formatCreateChannelMessage(
     BigInt(1),
     BigInt(Date.now()),
-    channelUri
-  );
-  const serializedChannelMessage =
-    serializeMessageForHttp(createChannelMessage);
+    channelUri,
+  )
+  const serializedChannelMessage = serializeMessageForHttp(createChannelMessage)
 
   try {
-    const response = await fetch("http://localhost:3000/messageBatch", {
-      method: "POST",
+    const response = await fetch('http://localhost:3000/messageBatch', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        messages: [serializedChannelMessage]
+        messages: [serializedChannelMessage],
       }),
-    });
+    })
 
     if (!response.ok) {
-      throw new Error(`Server error: ${response.statusText}`);
+      throw new Error(`Server error: ${response.statusText}`)
     }
 
-    const result = await response.json();
-    console.log("URIs stored successfully:", result);
+    const result = await response.json()
+    console.log('URIs stored successfully:', result)
   } catch (error) {
-    console.error("Error storing URIs:", error);
+    console.error('Error storing URIs:', error)
   }
 }
 
-await createChannel(exampleUri);
+await createChannel(exampleUri)
 
 export function serializeMessageForHttp(message: Message): string {
   const encodedMessage = {
@@ -54,9 +52,9 @@ export function serializeMessageForHttp(message: Message): string {
     hash: base64.encode(message.hash),
     sigType: message.sigType,
     sig: base64.encode(message.sig),
-  };
+  }
 
-  return JSON.stringify(encodedMessage);
+  return JSON.stringify(encodedMessage)
 }
 
 function createEmptyMessage(): Message {
@@ -72,15 +70,15 @@ function createEmptyMessage(): Message {
     hash: new Uint8Array(),
     sigType: 0,
     sig: new Uint8Array(),
-  };
+  }
 }
 
 function formatCreateChannelMessage(
   rid: bigint,
   timestamp: bigint,
-  uri: string
+  uri: string,
 ): Message {
-  const emptyMessage = createEmptyMessage();
+  const emptyMessage = createEmptyMessage()
   const overwrittenMessage = {
     ...emptyMessage,
     messageData: {
@@ -91,6 +89,6 @@ function formatCreateChannelMessage(
         uri: uri,
       } as ChannelCreateBody,
     },
-  };
-  return overwrittenMessage;
+  }
+  return overwrittenMessage
 }

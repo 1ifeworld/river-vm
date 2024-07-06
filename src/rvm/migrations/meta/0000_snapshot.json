@@ -159,12 +159,8 @@
           "name": "response_info_targetmessageid_submissions_id_fk",
           "tableFrom": "response_info",
           "tableTo": "submissions",
-          "columnsFrom": [
-            "targetmessageid"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["targetmessageid"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
