@@ -18,7 +18,7 @@ async function createChannel(channelUri: string): Promise<void> {
     serializeMessageForHttp(createChannelMessage);
 
   try {
-    const response = await fetch("http://localhost:3000/messageBatch", {
+    const response = await fetch("https://river-vm-production.up.railway.app/messageBatch", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
