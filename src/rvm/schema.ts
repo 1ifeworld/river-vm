@@ -77,9 +77,9 @@ export const messageTable = pgTable('messages', {
   type: integer('type'),
   body: text('body'), // this will be JSON.stringified message body object
   signer: text('signer'),
-  hashType: integer('hashtype'),
+  hashType: integer('hashType'),
   hash: text('hash'),
-  sigType: integer('sigtype'),
+  sigType: integer('sigType'),
   sig: text('sig'),
 })
 
@@ -93,8 +93,8 @@ export const uriInfo = pgTable('uri_info', {
   id: text('id').primaryKey(),
   name: text('name'),
   description: text('description'),
-  imageUri: text('imageuri'),
-  animationUri: text('animationuri'),
+  imageUri: text('imageUri'),
+  animationUri: text('animationUri'),
 })
 
 /*
@@ -105,7 +105,7 @@ export const uriInfo = pgTable('uri_info', {
 
 export const channelTable = pgTable('channels', {
   id: text('id').primaryKey(),
-  createdBy: bigint('createdby', { mode: 'bigint' }),
+  createdBy: bigint('createdBy', { mode: 'bigint' }),
   uri: text('uri'),
 })
 
@@ -125,7 +125,7 @@ export const channelRelations = relations(channelTable, ({ one, many }) => ({
 
 export const itemTable = pgTable('items', {
   id: text('id').primaryKey(),
-  createdBy: bigint('createdby', { mode: 'bigint' }),
+  createdBy: bigint('createdBy', { mode: 'bigint' }),
   uri: text('uri'),
 })
 
@@ -145,10 +145,10 @@ export const itemRelations = relations(itemTable, ({ one, many }) => ({
 
 export const submissionsTable = pgTable('submissions', {
   id: text('id').primaryKey(),
-  createdBy: bigint('createdby', { mode: 'bigint' }),
+  createdBy: bigint('createdBy', { mode: 'bigint' }),
   status: integer('status'), // 0 = pending | 1 = rejected | 2 = accepted | 3 = owner submission
-  itemId: text('itemid').notNull(),
-  channelId: text('channelid').notNull(),
+  itemId: text('itemId').notNull(),
+  channelId: text('channelId').notNull(),
   response: text('response'),
 })
 
@@ -178,7 +178,7 @@ export const submissionsRelations = relations(submissionsTable, ({ one }) => ({
 
 export const responseInfo = pgTable('response_info', {
   id: text('id').primaryKey(),
-  targetMessageId: text('targetmessageid').references(
+  targetMessageId: text('targetMessageId').references(
     () => submissionsTable.id,
   ),
   response: boolean('response'),
