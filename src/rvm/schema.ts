@@ -108,6 +108,7 @@ export const uriInfo = pgTable("uri_info", {
 export const channelTable = pgTable("channels", {
   id: text("id").primaryKey(),
   createdBy: bigint("createdby", { mode: "bigint" }),
+  createdAt: bigint("createdAt", { mode: "bigint" }),
   uri: text("uri"),
 });
 
@@ -128,6 +129,7 @@ export const channelRelations = relations(channelTable, ({ one, many }) => ({
 export const itemTable = pgTable("items", {
   id: text("id").primaryKey(),
   createdBy: bigint("createdby", { mode: "bigint" }),
+  createdAt: bigint("createdAt", { mode: "bigint" }),
   uri: text("uri"),
 });
 
@@ -148,6 +150,7 @@ export const itemRelations = relations(itemTable, ({ one, many }) => ({
 export const submissionsTable = pgTable("submissions", {
   id: text("id").primaryKey(),
   createdBy: bigint("createdby", { mode: "bigint" }),
+  createdAt: bigint("createdAt", { mode: "bigint" }),
   status: integer("status"), // 0 = pending | 1 = rejected | 2 = accepted | 3 = owner submission
   itemId: text("itemid").notNull(),
   channelId: text("channelid").notNull(),
@@ -180,6 +183,8 @@ export const submissionsRelations = relations(submissionsTable, ({ one }) => ({
 
 export const responseInfo = pgTable("response_info", {
   id: text("id").primaryKey(),
+  createdBy: bigint("createdby", { mode: "bigint" }),
+  createdAt: bigint("createdAt", { mode: "bigint" }),  
   targetMessageId: text("targetmessageid").references(
     () => submissionsTable.id
   ),

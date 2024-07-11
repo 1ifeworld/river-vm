@@ -197,6 +197,7 @@ export class River {
     await this.db.insert(dbSchema.channelTable).values({
       id: channelId,
       createdBy: message.messageData.rid,
+      createdAt: message.messageData.timestamp,
       uri: message.messageData.body.uri,
     }).onConflictDoUpdate({ target: dbSchema.channelTable.id, set: { id: channelId, uri: message.messageData.body.uri } });
     return channelId;
@@ -219,6 +220,7 @@ export class River {
     await this.db.insert(dbSchema.itemTable).values({
       id: itemId,
       createdBy: message.messageData.rid,
+      createdAt: message.messageData.timestamp,
       uri: message.messageData.body.uri,
     }).onConflictDoUpdate({ target: dbSchema.itemTable.id, set: { id: itemId, uri: message.messageData.body.uri } });
     // create the uri row, that will then get updated by lambda
@@ -272,6 +274,7 @@ export class River {
     await this.db.insert(dbSchema.submissionsTable).values({
       id: submissionId,
       createdBy: message.messageData.rid,
+      createdAt: message.messageData.timestamp,
       itemId: itemId,
       channelId: channelId,
       status: isOwner ? 3 : 0, // channel owenrs/mods get their submissions automatically set to 2 (0 = pending, 1 = declined, 2 = accepted, 3 = owner/mod)
@@ -355,6 +358,8 @@ export class River {
     // add this table
     await this.db.insert(dbSchema.responseInfo).values({
       id: responseId,
+      createdBy: message.messageData.rid,
+      createdAt: message.messageData.timestamp,
       targetMessageId: messageId,
       response: response,
     });
